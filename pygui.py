@@ -1,6 +1,7 @@
 from tkinter import *
 import math
 import random
+import tkinter
 
 master = Tk()
 master.title("Hangman: The Game")
@@ -34,7 +35,7 @@ def rotate(points, angle, center):
     return new_points
 
 
-def wrong(nwa,guess):
+def wrong(nwa):
     if nwa == 1:                    # w.create_line(0, y, canvas_width, y, fill="#476042")
         global base
         base=w.create_rectangle(324, 440, 650, 460, fill="#000000")      # base
@@ -81,11 +82,13 @@ def sel_rand_word():
     return sel_word
 
 
+
 word=sel_rand_word()
 wordd = Label(master, text="The word was: "+word)
 cgd = Label(master, text='')
 wgd = Label(master, text='')
-g = ""
+e1 = Text(master, height=1, width=1)
+
 nwa=0
 ui="_"*len(word)
 dui=""
@@ -110,20 +113,30 @@ def game_over():
     l_enter.place_forget()   #button
     wordd.place(x=370,y=470)   #word
 
+def strip_and_get_last(s):
+    
+    if len(s) > 1:
+        s = s.strip()
+        s = s.replace(' ', '').replace('\n', '').replace('\r', '')
+    return s[-1]
 
-def get_inp(e1):
+g = StringVar()
 
-    global g, nwa, uiw, uid, dui, ecg, ewg, cgd, wgd
+def get_inp():
+    global g
+    global nwa, uiw, uid, dui, ecg, ewg, cgd, wgd, e1
     dui=""
-    g = e1.get("1.0", "end-1c")
-    g=g.upper()
+    
+    
+    g.set(e1.get("1.0", "end-1c"))
+    input_char = strip_and_get_last(g.get().upper())
     global ui
     e1.delete(1.0, END)
-    if g in word and g not in ecg:
-        ecg+=g+" "
+    if input_char in word and input_char not in ecg:
+        ecg+=input_char+" "
         for i in range(len(word)):
-            if word[i] == g:
-                nui=ui[:i]+g+ui[i+1:]
+            if word[i] == input_char:
+                nui=ui[:i]+input_char+ui[i+1:]
                 ui=nui
         for i in ui:
             dui+=i+" "
@@ -132,20 +145,19 @@ def get_inp(e1):
         uid.place(x=492, y=520)
         if set(ecg) == set(word+' '):
             win()
-    elif g in ewg or g in ecg:
+    elif input_char in ewg or input_char in ecg:
         pass
     else:
-        ewg+=g+" "
+        ewg+=input_char+" "
         nwa+=1
-        uiw+=g
-        wrong(nwa, g)
+        uiw+=input_char
+        wrong(nwa)
     cgd.place_forget()
     wgd.place_forget()
     cgd = Label(master, text="Correct guesses made: "+ecg)
-    wgd = Label(master, text="Wrong guesses made: "+ewg)
+    wgd = Label(master, text="Wrong guesses made:\n"+ewg)
     cgd.place(x=60, y=200)
     wgd.place(x=60, y=230)
-
 
 def play():
 
@@ -153,9 +165,11 @@ def play():
     global g
     global ui
     global word, uid, e1, l_enter, eal, wordd, cgd, wgd, dui
+    e1 = Text(master, height=1, width=1)
+    e1.place(x=860, y=250)
     word=sel_rand_word()
     ui="_"*len(word)
-    dui=''
+    dui = '' 
     for i in ui:
         dui+=i+" "
     uid = Label(master, text=dui)
@@ -163,15 +177,13 @@ def play():
     wordd = Label(master, text="The word was: "+word)
     uid.place(x=492, y=520)
     eal.place(x=830, y=230)
-    e1 = Text(master, height=1, width=1)
-    e1.place(x=860, y=250)
-    l_enter = Button(master, text="Enter", fg="red", command=lambda: get_inp(e1), width=10 )
+    
+    l_enter = Button(master, text="Enter", fg="red", command=lambda: get_inp(), width=10 )
     l_enter.place(x=830, y=275)
     cgd = Label(master, text="Correct guesses made: "+ecg)
-    wgd = Label(master, text="Wrong guesses made: "+ewg)
+    wgd = Label(master, text="Wrong guesses made:\n"+ewg)
     cgd.place(x=60, y=200)
     wgd.place(x=60, y=230)
-
 
 def clear_canv():
 
@@ -202,14 +214,14 @@ def clear_canv():
 def restart(rb):
 
     rb.place_forget()
-    global nwa,ui,ecg,uid,ewg,g,uiw,wordd,cgd,wgd
+    global nwa,ui,ecg,uid,ewg,g,uiw,wordd,cgd,wgd,wn,go
     if set(ecg) == set(word+' '):
         w.delete(wn)
     else:
         w.delete(go)
     clear_canv()
     nwa=0
-    g = ""
+    g = StringVar()
     nwa=0
     ui="_"*len(word)
     dui=""
